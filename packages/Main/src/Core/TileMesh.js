@@ -47,6 +47,8 @@ class TileMesh extends THREE.Mesh {
 
         this.link = {};
 
+        this.receiveShadow = true;
+
         Object.defineProperty(this, 'visible', {
             get() { return this.#visible; },
             set(v) {
