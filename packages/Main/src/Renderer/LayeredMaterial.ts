@@ -23,12 +23,8 @@ export function unpack1K(color: THREE.Vector4Like, factor: number): number {
     return factor ? bitSh.dot(color) * factor : bitSh.dot(color);
 }
 
-const samplersElevationCount = 1;
-
-export function getMaxColorSamplerUnitsCount(): number {
-    const maxSamplerUnitsCount = Capabilities.getMaxTextureUnitsCount();
-    return maxSamplerUnitsCount - samplersElevationCount;
-}
+const elevationSamplerCount = 1;
+const colorSamplerCount = 96;
 
 export const colorLayerEffects = {
     noEffect: 0,
@@ -303,7 +299,7 @@ export class LayeredMaterial extends THREE.ShaderMaterial {
     constructor(options: LayeredMaterialParameters = {}, crsCount: number) {
         super(options);
 
-        nbSamplers ??= [samplersElevationCount, getMaxColorSamplerUnitsCount()];
+        nbSamplers ??= [elevationSamplerCount, colorSamplerCount];
 
         const defines: Partial<typeof this.defines> = {};
 
