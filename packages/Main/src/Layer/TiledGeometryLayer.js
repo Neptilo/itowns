@@ -318,7 +318,6 @@ class TiledGeometryLayer extends GeometryLayer {
             let requestChildrenUpdate = false;
 
             node.material.visible = true;
-            node.material.layersNeedUpdate = true;
             this.info.update(node);
 
             if (node.pendingSubdivision || (TiledGeometryLayer.hasEnoughTexturesToSubdivide(context, node) && this.subdivision(context, this, node))) {
@@ -345,6 +344,10 @@ class TiledGeometryLayer extends GeometryLayer {
 
     convert(requester, extent) {
         return convertToTile.convert(requester, extent, this);
+    }
+
+    countColorLayersTextures(...layers) {
+        return layers.length;
     }
 
     // eslint-disable-next-line

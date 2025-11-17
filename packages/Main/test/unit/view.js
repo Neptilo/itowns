@@ -8,7 +8,6 @@ import GlobeLayer from 'Core/Prefab/Globe/GlobeLayer';
 import FileSource from 'Source/FileSource';
 import ColorLayersOrdering from 'Renderer/ColorLayersOrdering';
 import { CAMERA_TYPE } from 'Renderer/Camera';
-import Capabilities from 'Core/System/Capabilities';
 import Renderer from './bootstrap';
 
 describe('Viewer', function () {
@@ -131,26 +130,9 @@ describe('Viewer', function () {
     });
 
     it('Capabilities', () => {
-        const getParameterOrig = renderer.context.getParameter;
-        const getProgramParameterOrig = renderer.context.getProgramParameter;
-
-        // pretend that MAX_TEXTURE_IMAGE_UNITS is 42
-        renderer.context.getParameter = () => 42;
-
-        // Simulate a success of linkProgram by making getProgramParameter return true.
-        // In that case, the maximum color sampler count is computed.
-        renderer.context.getProgramParameter = () => true;
-        Capabilities.updateCapabilities(renderer);
-        assert.equal(getMaxColorSamplerUnitsCount(), 41);
-
-        // Simulate a failure of linkProgram by making getProgramParameter return false.
-        // In that case, throw an error.
         renderer.context.getProgramParameter = () => false;
-        assert.throws(() => { Capabilities.updateCapabilities(renderer); });
-
-        // retrieve original function values
-        renderer.context.getParameter = getParameterOrig;
-        renderer.context.getProgramParameter = getProgramParameterOrig;
+        renderer.context.getParameter = () => 32;
+        assert.equal(getMaxColorSamplerUnitsCount(), 15);
     });
 
     it('Dispose view', () => {

@@ -106,15 +106,8 @@ class TileMesh extends THREE.Mesh {
         }
     }
 
-    /**
-     * An optional callback that is executed immediately before a 3D object is rendered.
-     *
-     * @param {THREE.WebGLRenderer} renderer - The renderer used to render textures.
-     */
-    onBeforeRender(renderer) {
-        if (this.material.layersNeedUpdate) {
-            this.material.updateLayersUniforms(renderer);
-        }
+    onBeforeRender() {
+        this.material.updateLayersUniforms();
     }
 }
 
