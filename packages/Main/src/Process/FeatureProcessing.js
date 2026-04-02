@@ -3,6 +3,7 @@ import ObjectRemovalHelper from 'Process/ObjectRemovalHelper';
 import handlingError from 'Process/handlerNodeError';
 import { Coordinates } from '@itowns/geographic';
 import { geoidLayerIsVisible } from 'Layer/GeoidLayer';
+import { applyStyle } from 'Converter/Feature2Mesh';
 
 const coord = new Coordinates('EPSG:4326', 0, 0, 0);
 
@@ -13,6 +14,22 @@ export default {
             ObjectRemovalHelper.removeChildrenAndCleanupRecursively(layer, node);
             return;
         }
+        // This code is done before the early return below
+        // and before the `canTryUpdate` conditional for testing,
+        // to increase the chances of the objects to be updated
+        node.link[layer.id]?.forEach((f) => {
+            f.updateMatrixWorld(true);
+            if (layer.needsUpdate) {
+                for (const mesh of f.meshes.children) {
+                    applyStyle(
+                        mesh,
+                        f.collection,
+                        layer.style,
+                        true, true, // update all buffers, for testing
+                    );
+                }
+            }
+        });
         if (!node.visible) {
             return;
         }
@@ -24,7 +41,6 @@ export default {
             node.link[layer.id]?.forEach((f) => {
                 f.layer.object3d.add(f);
                 f.meshes.position.z = geoidLayerIsVisible(layer.parent) ? node.geoidHeight : 0;
-                f.meshes.updateMatrixWorld();
             });
             return;
         }
