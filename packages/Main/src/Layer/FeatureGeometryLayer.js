@@ -84,6 +84,10 @@ class FeatureGeometryLayer extends GeometryLayer {
             this.object3d.clear();
         }
     }
+
+    postUpdate(context, sources) {
+        this.needsUpdate = false;
+    }
 }
 
 export default FeatureGeometryLayer;

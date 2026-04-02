@@ -180,6 +180,11 @@ class MainLoop extends EventDispatcher<MainLoopEvents> {
                     // `postUpdate` is called when this geom layer update
                     // process is finished
                     geometryLayer.postUpdate(context, geometryLayer, updateSources);
+                    for (const attachedLayer of geometryLayer.attachedLayers) {
+                        if (attachedLayer.postUpdate) {
+                            attachedLayer.postUpdate(context, srcs);
+                        }
+                    }
                 }
 
                 // Clear the cache of expired resources

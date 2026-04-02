@@ -860,14 +860,13 @@ export default {
                 return mesh;
             });
             const featureNode = new FeatureMesh(meshes, collection);
-            if (style !== defaultStyle) {
+            if (this && style !== defaultStyle) {
                 // defaultStyle is a shared singleton never mutated.
                 // Subscribing to it would leak a listener per convert() call.
+                // MVT feature meshes follow terrain tile subdivision. Track style
+                // changes at layer level so current tiles can be restyled safely
+                // from FeatureProcessing revisits.
                 style.addEventListener('style-property-changed', (event) => {
-                    style = event.style;
-                    for (const mesh of featureNode.meshes.children) {
-                        _applyStyle(mesh, featureNode.collection, event.parameter);
-                    }
                 });
             }
 
@@ -883,9 +882,12 @@ export default {
  *
  * @param {THREE.Mesh} featureMesh - The mesh to update.
  * @param {THREE.Group} collection - The collection providing matrix/world context.
- * @param {string} parameter - Name of the style property that changed
+ * @param {Style} styleIn - The style to apply.
+ * @param {boolean} updateColor - Whether the color buffer must be updated.
+ * @param {boolean} updatePosition - Whether the position buffer must be updated.
  */
-function _applyStyle(featureMesh, collection, parameter) {
+export function applyStyle(featureMesh, collection, styleIn, updateColor, updatePosition) {
+    style = styleIn;
     const feature = featureMesh.feature;
     if (!collection) {
         console.error('Cannot update style: collection not provided');
@@ -893,18 +895,17 @@ function _applyStyle(featureMesh, collection, parameter) {
     }
 
     context.setCollection(collection);
-    collection.updateMatrixWorld(true);
     collection.matrixWorld.copy(collection.origMatrixWorld);
 
     // only define attributes that need an update
     let colorAttr;
-    if (parameter === 'color') {
+    if (updateColor) {
         colorAttr = featureMesh.geometry.getAttribute('color');
         colorAttr.needsUpdate = true;
     }
     const colors = colorAttr?.array;
     let posAttr;
-    if (parameter === 'extrusion_height' || parameter === 'base_altitude') {
+    if (updatePosition) {
         posAttr = featureMesh.geometry.getAttribute('position');
         posAttr.needsUpdate = true;
     }
