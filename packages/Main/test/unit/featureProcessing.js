@@ -13,18 +13,20 @@ describe('FeatureProcessing', function () {
         out: { crs: 'EPSG:4326', buildExtent: true, mergeFeatures: false, structure: '3d' },
     });
 
-    it('should update style for child meshes when layer style changes', function (done) {
+    it('should update style for child meshes when layer.needsUpdate is true', function (done) {
         parsed.then((collection) => {
             const style = new Style({ fill: { color: 'red' } });
             const layer = {
                 id: 'test-layer',
                 object3d: { add: () => {} },
                 style,
+                needsUpdate: false,
                 convert: Feature2Mesh.convert(),
             };
 
             // Convert the collection to create feature meshes
             const featureNode = layer.convert.call(layer, collection);
+            featureNode.layer = layer;
 
             // Create mock node (tile) with feature attached
             const node = {
@@ -35,11 +37,7 @@ describe('FeatureProcessing', function () {
             };
             node.layerUpdateState[layer.id] = new LayerUpdateState();
             node.layerUpdateState[layer.id].canTryUpdate = () => false;
-            node.link[layer.id] = [{
-                collection: featureNode.collection,
-                meshes: featureNode.meshes,
-                layer: { object3d: { add: () => {} } },
-            }];
+            node.link[layer.id] = [featureNode];
 
             const context = { view: {} };
 
@@ -48,7 +46,9 @@ describe('FeatureProcessing', function () {
             const colorAttr1 = childMesh1.geometry.getAttribute('color');
             const initialColorVersion1 = colorAttr1.version;
 
+            // Change style property and flag needsUpdate
             style.fill.color = 'blue';
+            layer.needsUpdate = true;
             FeatureProcessing.update(context, layer, node);
 
             // Verify color attributes were updated (version incremented)
@@ -57,6 +57,7 @@ describe('FeatureProcessing', function () {
             assert.strictEqual(colorAttr1.array[0], 0);
             assert.strictEqual(colorAttr1.array[1], 0);
             assert.strictEqual(colorAttr1.array[2], 255);
+
             done();
         }).catch(done);
     });

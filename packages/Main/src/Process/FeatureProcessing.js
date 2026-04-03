@@ -86,6 +86,18 @@ export default {
                     featureMesh.meshes.position.z = geoidLayerIsVisible(layer.parent) ? node.geoidHeight : 0;
                     featureMesh.updateMatrixWorld();
 
+                    // Always apply the current style. Cached meshes may
+                    // carry buffers computed with a previous style that
+                    // changed while the tile was out of the scene tree.
+                    for (const mesh of featureMesh.meshes.children) {
+                        applyStyle(
+                            mesh,
+                            featureMesh.collection,
+                            layer.style,
+                            true, true,
+                        );
+                    }
+
                     if (layer.onMeshCreated) {
                         layer.onMeshCreated(featureMesh, context);
                     }

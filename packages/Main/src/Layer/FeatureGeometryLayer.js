@@ -73,6 +73,10 @@ class FeatureGeometryLayer extends GeometryLayer {
         this.isFeatureGeometryLayer = true;
 
         this.style = style instanceof Style ? style : new Style(style);
+
+        this.style.addEventListener('style-property-changed', (event) => {
+            this.needsUpdate = true;
+        });
         this.accurate = accurate;
         this.buildExtent = !this.accurate;
         this.filter = filter;

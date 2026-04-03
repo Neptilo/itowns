@@ -457,6 +457,7 @@ class Style extends EventDispatcher {
         this.isStyle = true;
         this.context = new StyleContext();
 
+
         params.zoom = params.zoom || {};
         params.fill = params.fill || {};
         params.stroke = params.stroke || {};
