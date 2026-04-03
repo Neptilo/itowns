@@ -107,41 +107,6 @@
                 return view.addLayer(layer);
             });
 
-            // ---------- DISPLAY VECTOR TILED MAP DATA AS A ColorLayer : ----------
-
-            // Define the source of the ColorLayer data : a vector tiled map from the geoportail.
-            const mapSource = new itowns.VectorTilesSource({
-                style: "https://data.geopf.fr/annexes/ressources/vectorTiles/styles/PLAN.IGN/standard.json",
-                // We don't display mountains and parcels related data to ease visualisation. Also, we don't display
-                // buildings related data as it will be displayed in another Layer.
-                filter: (layer) => {
-                    return !layer['source-layer'].includes('bati_surf')
-                        && !layer['source-layer'].includes('oro_')
-                        && !layer['source-layer'].includes('routier_ponc')
-                        && !layer['source-layer'].includes('parcellaire')
-                }
-            });
-
-            // Create a ColorLayer to support map data.
-            const mapLayer = new itowns.ColorLayer('MVT', {
-                source: mapSource,
-                effect_type: itowns.colorLayerEffects.removeLightColor,
-                effect_parameter: 2.5,
-                addLabelLayer: { performance: true },
-                style: {
-                    text: {
-                        color: '#000000',
-                        haloColor: '#ffffff',
-                        haloWidth: 3,
-                        haloBlur: 2,
-                    }
-                },
-            });
-
-            // Add the ColorLayer to the scene and to the debug menu.
-            view.addLayer(mapLayer)
-                .then(debugMenu.addLayerGUI.bind(debugMenu));
-
             // ---------- DISPLAY VECTOR TILED BUILDING DATA AS 3D MESHES : ----------
 
             // Define the source of the building data : those are vector tiled data from the geoportail.
@@ -172,13 +137,13 @@
                 toggleHeight: function () {
                     useFixedHeight = !useFixedHeight;
                     buildingsLayer.style.fill.extrusion_height = useFixedHeight ? 8 : extrudeBuildings;
-                    buildingsLayer.needsUpdate = true;
+                    // buildingsLayer.needsUpdate = true;
                     view.notifyChange(buildingsLayer);
                 },
                 toggleColor: function () {
                     useFixedColor = !useFixedColor;
                     buildingsLayer.style.fill.color = useFixedColor ? '#00cc00' : colorBuildings;
-                    buildingsLayer.needsUpdate = true;
+                    // buildingsLayer.needsUpdate = true;
                     view.notifyChange(buildingsLayer);
                 }
             };
